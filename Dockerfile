@@ -21,13 +21,5 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Apacheの設定
 RUN a2enmod rewrite
 
-# PHPの設定ファイル（php.ini）をコピー
-COPY php/php.ini /usr/local/etc/php/php.ini
-
-# コンテナ起動時に実行されるスクリプトをコピー
-COPY ./scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
 # コンテナ起動時に実行
-ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
