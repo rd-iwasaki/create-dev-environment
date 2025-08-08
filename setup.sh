@@ -25,15 +25,6 @@ fi
 if [ ! -f scripts/generate-certs.sh ]; then
     curl -fsSL -o scripts/generate-certs.sh "${REPO_URL}/scripts/generate-certs.sh"
 fi
-if [ ! -f public/index.php ]; then
-    curl -fsSL -o public/index.php "${REPO_URL}/public/index.php"
-fi
-if [ ! -f src/js/main.js ]; then
-    curl -fsSL -o src/js/main.js "${REPO_URL}/src/js/main.js"
-fi
-if [ ! -f src/scss/style.scss ]; then
-    curl -fsSL -o src/scss/style.scss "${REPO_URL}/src/scss/style.scss"
-fi
 echo "✅ ファイルのダウンロードが完了しました。"
 
 # --- 2. 必要なツールのチェック ---
