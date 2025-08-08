@@ -7,24 +7,26 @@ REPO_URL="https://raw.githubusercontent.com/rd-iwasaki/create-dev-environment/ma
 # ダウンロード先のディレクトリを作成
 mkdir -p certs src/scss src/js nginx/conf.d public/assets/css public/assets/js scripts php
 
-if [ ! -f .env.example ]; then
-    curl -fsSL -o .env.example "${REPO_URL}/.env.example"
-fi
-if [ ! -f docker-compose.yml ]; then
-    curl -fsSL -o docker-compose.yml "${REPO_URL}/docker-compose.yml"
-fi
-if [ ! -f docker-compose.yml ]; then
-    curl -fsSL -o vite.config.js "${REPO_URL}/vite.config.js"
-fi
-if [ ! -f nginx/conf.d/default.conf ]; then
-    curl -fsSL -o nginx/conf.d/default.conf "${REPO_URL}/nginx/conf.d/default.conf"
-fi
-if [ ! -f Dockerfile ]; then
-    curl -fsSL -o Dockerfile "${REPO_URL}/Dockerfile"
-fi
-if [ ! -f scripts/generate-certs.sh ]; then
-    curl -fsSL -o scripts/generate-certs.sh "${REPO_URL}/scripts/generate-certs.sh"
-fi
+# ファイルのリスト
+declare -a FILES=(
+    ".env.example"
+    "docker-compose.yml"
+    "vite.config.js"
+    "nginx/conf.d/default.conf"
+    "Dockerfile"
+    "scripts/generate-certs.sh"
+    "public/index.php"
+    "src/js/main.js"
+    "src/scss/style.scss"
+)
+
+# 各ファイルをダウンロード
+for file in "${FILES[@]}"
+do
+    if [ ! -f "$file" ]; then
+        curl -fsSL -o "$file" "${REPO_URL}/$file"
+    fi
+done
 echo "✅ ファイルのダウンロードが完了しました。"
 
 # --- 2. 必要なツールのチェック ---
@@ -76,6 +78,8 @@ if [ "$SSL" == "true" ]; then
         exit 1
     fi
     
+    # 実行権限を付与してから実行
+    chmod +x ./scripts/generate-certs.sh
     ./scripts/generate-certs.sh
 fi
 
@@ -85,6 +89,13 @@ docker-compose up --build -d
 
 # --- 6. Node.jsパッケージのインストール ---
 echo "▶ Node.jsパッケージをインストールします。"
+
+# package.jsonが存在しない場合にnpm initを実行
+if [ ! -f package.json ]; then
+    echo "▶ package.jsonが見つかりません。新規作成します。"
+    npm init -y > /dev/null
+fi
+
 npm install
 
 echo "✅ 環境構築が完了しました。"
