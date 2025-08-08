@@ -32,7 +32,7 @@ fi
 
 # .envファイルからVIEW_URLを読み込み
 # -Eオプションで、=の前後の空白を無視して読み込む
-source <(grep -E '^[^#]*=' .env)
+export $(grep -v '^#' .env | xargs)
 if [ -z "$VIEW_URL" ]; then
     echo "❌ .envファイルにVIEW_URLが設定されていません。"
     exit 1
