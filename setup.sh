@@ -1,6 +1,24 @@
 #!/bin/bash
 
-# --- 1. 必要なツールのチェック ---
+# --- 1. 必要なファイルをGitHubから直接ダウンロード ---
+echo "▶ 必要なファイルをダウンロードしています..."
+REPO_URL="https://raw.githubusercontent.com/rd-iwasaki/create-dev-environment/main"
+
+mkdir -p certs src/scss src/js nginx/conf.d public/assets/css public/assets/js scripts php
+
+curl -fsSL -o .env.example "${REPO_URL}/.env.example"
+curl -fsSL -o docker-compose.yml "${REPO_URL}/docker-compose.yml"
+curl -fsSL -o vite.config.js "${REPO_URL}/vite.config.js"
+curl -fsSL -o nginx/conf.d/default.conf "${REPO_URL}/nginx/conf.d/default.conf"
+curl -fsSL -o Dockerfile "${REPO_URL}/Dockerfile"
+curl -fsSL -o scripts/generate-certs.sh "${REPO_URL}/scripts/generate-certs.sh"
+curl -fsSL -o public/index.php "${REPO_URL}/public/index.php"
+curl -fsSL -o src/js/main.js "${REPO_URL}/src/js/main.js"
+curl -fsSL -o src/scss/style.scss "${REPO_URL}/src/scss/style.scss"
+
+echo "✅ ファイルのダウンロードが完了しました。"
+
+# --- 2. 必要なツールのチェック ---
 echo "▶ 必要なツールのチェックを開始します..."
 if ! command -v docker &> /dev/null; then
     echo "❌ Dockerが見つかりません。インストールしてください。"
@@ -12,9 +30,10 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-# --- 2. .envファイルの作成 ---
+# --- 3. .envファイルの作成 ---
 if [ ! -f .env ]; then
     echo "▶ .envファイルを作成します。"
+
     # .env.exampleが存在しない場合、スクリプトを終了
     if [ ! -f .env.example ]; then
         echo "❌ .env.exampleファイルが見つかりません。スクリプトを終了します。"
@@ -38,7 +57,7 @@ if [ -z "$VIEW_URL" ]; then
     exit 1
 fi
 
-# --- 3. SSL証明書の自動生成 ---
+# --- 4. SSL証明書の自動生成 ---
 if [ "$SSL" == "true" ]; then
     echo "▶ SSL証明書を生成します。"
     
@@ -51,11 +70,11 @@ if [ "$SSL" == "true" ]; then
     ./scripts/generate-certs.sh
 fi
 
-# --- 4. Dockerコンテナのビルドと起動 ---
+# --- 5. Dockerコンテナのビルドと起動 ---
 echo "▶ Dockerコンテナをビルドし、起動します。"
 docker-compose up --build -d
 
-# --- 5. Node.jsパッケージのインストール ---
+# --- 6. Node.jsパッケージのインストール ---
 echo "▶ Node.jsパッケージをインストールします。"
 npm install
 
