@@ -12,7 +12,7 @@ declare -a FILES=(
     ".env.example"
     "docker-compose.yml"
     "vite.config.js"
-    "nginx/conf.d/default.conf"
+    "nginx/conf.d/default.conf.template"
     "Dockerfile"
     "scripts/generate-certs.sh"
     "public/index.php"

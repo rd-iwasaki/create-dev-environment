@@ -1,4 +1,4 @@
-# nginx/conf.d/default.conf
+# nginx/conf.d/default.conf.template
 server {
     listen 80;
     server_name ${VIEW_URL};
