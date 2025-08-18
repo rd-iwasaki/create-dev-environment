@@ -96,7 +96,7 @@ if [ ! -f package.json ]; then
     npm init -y > /dev/null
 fi
 
-npm install
+npm install vite sass jquery --save-dev
 
 echo "✅ 環境構築が完了しました。"
 echo "手動でhostsファイルに以下を追記してください:"
