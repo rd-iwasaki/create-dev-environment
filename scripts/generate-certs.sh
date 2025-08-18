@@ -23,4 +23,8 @@ else
     -keyout "${KEY_FILE}" \
     -out "${CERT_FILE}" \
     -subj "/C=JP/ST=Tokyo/L=Shinjuku/O=Local Development/OU=IT/CN=${VIEW_URL}"
+  # 証明書をMacのキーチェーンに登録
+  echo "▶ 証明書をMacのキーチェーンに登録します。管理者パスワードが必要です。"
+  sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "${CERT_FILE}"
+  echo "✅ 証明書が登録されました。"
 fi

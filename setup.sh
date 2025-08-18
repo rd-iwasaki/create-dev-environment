@@ -68,9 +68,9 @@ if [ -z "$VIEW_URL" ]; then
     exit 1
 fi
 
-# --- 4. SSL証明書の自動生成 ---
+# --- 4. SSL証明書の自動生成と登録 ---
 if [ "$SSL" == "true" ]; then
-    echo "▶ SSL証明書を生成します。"
+    echo "▶ SSL証明書を生成し、システムに登録します。"
     
     # generate-certs.shが存在しない場合、スクリプトを終了
     if [ ! -f ./scripts/generate-certs.sh ]; then
@@ -85,6 +85,13 @@ fi
 
 # --- 5. Dockerコンテナのビルドと起動 ---
 echo "▶ Dockerコンテナをビルドし、起動します。"
+
+# Dockerデスクトップアプリが起動しているか確認
+if ! docker info &> /dev/null; then
+    echo "❌ Dockerデスクトップアプリが起動していません。アプリケーションを起動してから再度スクリプトを実行してください。"
+    exit 1
+fi
+
 docker-compose up --build -d
 
 # --- 6. Node.jsパッケージのインストール ---
