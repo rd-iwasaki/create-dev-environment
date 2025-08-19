@@ -15,7 +15,7 @@ declare -a FILES=(
     "nginx/conf.d/default.conf.template"
     "Dockerfile"
     "scripts/generate-certs.sh"
-    "public/index.php"
+    "public/index.html"
     "src/js/main.js"
     "src/scss/style.scss"
 )
