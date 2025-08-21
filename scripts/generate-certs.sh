@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# setup.shからVIEW_URLを引数として受け取る
+VIEW_URL=$1
+
 # .envファイルから環境変数を読み込む
 if [ -f .env ]; then
   export $(grep -E '^(VIEW_URL)' .env | xargs)
