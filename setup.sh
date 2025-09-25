@@ -103,6 +103,20 @@ if [ ! -f package.json ]; then
     npm init -y > /dev/null
 fi
 
+# jqがインストールされているか確認
+if ! command -v jq &> /dev/null; then
+    echo "❌ jqが見つかりません。インストールしてください (例: brew install jq)。"
+    exit 1
+fi
+
+# jqを使ってscriptsセクションにdevとbuildスクリプトを追記
+# --argjson でJSON文字列を渡し、.scriptsに追加する
+jq --argjson new_scripts '{"dev": "vite", "build": "vite build"}' \
+   '.scripts += $new_scripts' package.json > package.tmp.json && mv package.tmp.json package.json
+
+# 依存パッケージのインストール
+npm install vite sass jquery --save-dev
+
 npm install vite sass jquery --save-dev
 
 echo "✅ 環境構築が完了しました。"
