@@ -22,4 +22,5 @@ services:
     environment:
       - VIEW_URL=${VIEW_URL}
       - SSL=${SSL}
-      
+    command: >
+      /bin/sh -c "envsubst '$$VIEW_URL' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

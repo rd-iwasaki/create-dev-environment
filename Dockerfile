@@ -2,7 +2,7 @@
 
 # ベースイメージを動的に指定
 ARG PHP_VERSION
-FROM php:${PHP_VERSION}-apache
+FROM php:${PHP_VERSION}-fpm
 
 # 必要なPHP拡張機能をインストール
 RUN docker-php-ext-install -j$(nproc) pdo_mysql
@@ -17,9 +17,3 @@ RUN apt-get update && apt-get install -y \
 
 # Composerをインストール
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Apacheの設定
-RUN a2enmod rewrite
-
-# コンテナ起動時に実行
-CMD ["apache2-foreground"]
