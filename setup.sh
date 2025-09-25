@@ -117,8 +117,6 @@ jq --argjson new_scripts '{"dev": "vite", "build": "vite build"}' \
 # 依存パッケージのインストール
 npm install vite sass jquery --save-dev
 
-npm install vite sass jquery --save-dev
-
 echo "✅ 環境構築が完了しました。"
 echo "手動でhostsファイルに以下を追記してください:"
 echo "127.0.0.1   $VIEW_URL"
