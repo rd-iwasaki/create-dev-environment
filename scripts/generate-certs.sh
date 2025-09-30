@@ -22,11 +22,23 @@ if [ -f "${CERT_FILE}" ] && [ -f "${KEY_FILE}" ]; then
   echo "SSL証明書は既に存在します: ${VIEW_URL}"
 else
   echo "SSL証明書を生成します: ${VIEW_URL}"
+
+  # Subject Alternative Name (SAN) を含む設定ファイルを作成
+  cat > "${CERTS_DIR}/v3.ext" << EOF
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = ${VIEW_URL}
+EOF
+
   # opensslコマンドで自己署名証明書を生成
   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout "${KEY_FILE}" \
     -out "${CERT_FILE}" \
-    -subj "/C=JP/ST=Tokyo/L=Shinjuku/O=Local Development/OU=IT/CN=${VIEW_URL}"
+    -subj "/C=JP/ST=Tokyo/L=Shinjuku/O=Local Development/OU=IT/CN=${VIEW_URL}" \
+    -extensions v3_ca -extfile "${CERTS_DIR}/v3.ext"
   # 証明書をMacのキーチェーンに登録
   echo "▶ 証明書をMacのキーチェーンに登録します。管理者パスワードが必要です。"
   sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "${CERT_FILE}"
