@@ -23,9 +23,8 @@ if [ -f "${CERT_FILE}" ] && [ -f "${KEY_FILE}" ]; then
 else
   echo "SSL証明書を生成します: ${VIEW_URL}"
 
-  # 一時的なOpenSSL設定ファイルを作成
-  # macOS標準のOpenSSL (LibreSSL) は -extfile オプションをサポートしていないため、
-  # -config オプションで設定ファイルを渡す方法に切り替える
+  # 一時的なOpenSSL設定ファイルを作成します。
+  # macOS標準のOpenSSL (LibreSSL) は -extfile オプションをサポートしていないため、-config オプションで設定ファイルを渡します。
   cat > "${CERTS_DIR}/openssl.cnf" << EOF
 [req]
 distinguished_name = req_distinguished_name
@@ -47,8 +46,11 @@ subjectAltName = @alt_names
 DNS.1 = ${VIEW_URL}
 EOF
 
-  # opensslコマンドで自己署名証明書を生成
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout "${KEY_FILE}" -out "${CERT_FILE}" -config "${CERTS_DIR}/openssl.cnf"
+  # opensslコマンドで自己署名証明書を生成します。
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout "${KEY_FILE}" \
+    -out "${CERT_FILE}" \
+    -config "${CERTS_DIR}/openssl.cnf"
   # 証明書をMacのキーチェーンに登録
   echo "▶ 証明書をMacのキーチェーンに登録します。管理者パスワードが必要です。"
   sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "${CERT_FILE}"
