@@ -23,8 +23,22 @@ if [ -f "${CERT_FILE}" ] && [ -f "${KEY_FILE}" ]; then
 else
   echo "SSL証明書を生成します: ${VIEW_URL}"
 
-  # Subject Alternative Name (SAN) を含む設定ファイルを作成
-  cat > "${CERTS_DIR}/v3.ext" << EOF
+  # 一時的なOpenSSL設定ファイルを作成
+  # macOS標準のOpenSSL (LibreSSL) は -extfile オプションをサポートしていないため、
+  # -config オプションで設定ファイルを渡す方法に切り替える
+  cat > "${CERTS_DIR}/openssl.cnf" << EOF
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_ca
+prompt = no
+[req_distinguished_name]
+C = JP
+ST = Tokyo
+L = Shinjuku
+O = Local Development
+OU = IT
+CN = ${VIEW_URL}
+[v3_ca]
 authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
 keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
@@ -34,11 +48,7 @@ DNS.1 = ${VIEW_URL}
 EOF
 
   # opensslコマンドで自己署名証明書を生成
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout "${KEY_FILE}" \
-    -out "${CERT_FILE}" \
-    -subj "/C=JP/ST=Tokyo/L=Shinjuku/O=Local Development/OU=IT/CN=${VIEW_URL}" \
-    -extensions v3_ca -extfile "${CERTS_DIR}/v3.ext"
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout "${KEY_FILE}" -out "${CERT_FILE}" -config "${CERTS_DIR}/openssl.cnf"
   # 証明書をMacのキーチェーンに登録
   echo "▶ 証明書をMacのキーチェーンに登録します。管理者パスワードが必要です。"
   sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "${CERT_FILE}"
