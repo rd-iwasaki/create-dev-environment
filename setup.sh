@@ -113,17 +113,13 @@ fi
 # package.jsonにscriptsとdevDependenciesを追記
 echo "▶ package.jsonを更新します。"
 
-# "test" スクリプトの行を、カンマを追加しつつ新しいスクリプトもまとめて追記するように置換
-sed -i '' 's|"test": "echo \\"Error: no test specified\\" && exit 1"|"test": "echo \\"Error: no test specified\\" && exit 1",\
-    "dev": "vite",\
-    "build": "vite build"|' package.json
+# npm pkg コマンドを使用して package.json を安全に更新
+npm pkg set scripts.dev="vite"
+npm pkg set scripts.build="vite build"
 
-# devDependencies が存在しない場合のみ追加
-grep -q '"devDependencies"' package.json || sed -i '' '/"license":/i \
-  "devDependencies": {},\
-' package.json
 # 依存パッケージのインストール
-npm install vite sass jquery --save-dev
+echo "▶ 依存パッケージをインストールします。"
+npm install --save-dev vite sass jquery
 
 echo "✅ 環境構築が完了しました。"
 echo "手動でhostsファイルに以下を追記してください:"
