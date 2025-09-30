@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# setup.shからVIEW_URLを引数として受け取る
-VIEW_URL=$1
+set -euo pipefail
 
-# .envファイルから環境変数を読み込む
-if [ -f .env ]; then
-  export $(grep -E '^(VIEW_URL)' .env | xargs)
+# 第1引数からVIEW_URLを受け取る
+VIEW_URL=$1
+if [ -z "$VIEW_URL" ]; then
+  echo "❌ VIEW_URLが引数として渡されていません。" >&2
+  exit 1
 fi
 
 # 証明書の出力ディレクトリ

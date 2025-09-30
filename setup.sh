@@ -1,6 +1,9 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # --- 1. 必要なファイルをGitHubから直接ダウンロード ---
+
 echo "▶ 必要なファイルをダウンロードしています..."
 REPO_URL="https://raw.githubusercontent.com/rd-iwasaki/create-dev-environment/main"
 
@@ -30,6 +33,7 @@ done
 echo "✅ ファイルのダウンロードが完了しました。"
 
 # --- 2. 必要なツールのチェック ---
+
 echo "▶ 必要なツールのチェックを開始します..."
 if ! command -v docker &> /dev/null; then
     echo "❌ Dockerが見つかりません。インストールしてください。"
@@ -42,6 +46,7 @@ if ! command -v node &> /dev/null; then
 fi
 
 # --- 3. .envファイルの作成 ---
+
 if [ ! -f .env ]; then
     echo "▶ .envファイルを作成します。"
 
@@ -61,7 +66,6 @@ if [ ! -f .env ]; then
 fi
 
 # .envファイルからVIEW_URLを読み込み
-# -Eオプションで、=の前後の空白を無視して読み込む
 export $(grep -v '^#' .env | xargs)
 if [ -z "$VIEW_URL" ]; then
     echo "❌ .envファイルにVIEW_URLが設定されていません。"
@@ -69,6 +73,7 @@ if [ -z "$VIEW_URL" ]; then
 fi
 
 # --- 4. SSL証明書の自動生成と登録 ---
+
 if [ "$SSL" == "true" ]; then
     echo "▶ SSL証明書を生成し、システムに登録します。"
     
@@ -80,10 +85,11 @@ if [ "$SSL" == "true" ]; then
     
     # 実行権限を付与してから実行
     chmod +x ./scripts/generate-certs.sh
-    ./scripts/generate-certs.sh
+    ./scripts/generate-certs.sh "$VIEW_URL"
 fi
 
 # --- 5. Dockerコンテナのビルドと起動 ---
+
 echo "▶ Dockerコンテナをビルドし、起動します。"
 
 # Dockerデスクトップアプリが起動しているか確認
@@ -95,6 +101,7 @@ fi
 docker-compose up --build -d
 
 # --- 6. Node.jsパッケージのインストール ---
+
 echo "▶ Node.jsパッケージをインストールします。"
 
 # package.jsonが存在しない場合にnpm initを実行
@@ -103,16 +110,16 @@ if [ ! -f package.json ]; then
     npm init -y > /dev/null
 fi
 
-# jqがインストールされているか確認
-if ! command -v jq &> /dev/null; then
-    echo "❌ jqが見つかりません。インストールしてください (例: brew install jq)。"
-    exit 1
-fi
+# package.jsonにscriptsとdevDependenciesを追記
+echo "▶ package.jsonを更新します。"
+sed -i '' -e '/"test":/a \
+    "dev": "vite",\
+    "build": "vite build",
+' package.json
 
-# jqを使ってscriptsセクションにdevとbuildスクリプトを追記
-# --argjson でJSON文字列を渡し、.scriptsに追加する
-jq --argjson new_scripts '{"dev": "vite", "build": "vite build"}' \
-   '.scripts += $new_scripts' package.json > package.tmp.json && mv package.tmp.json package.json
+sed -i '' -e '/"main":/a \
+    "devDependencies": {},\
+' package.json
 
 # 依存パッケージのインストール
 npm install vite sass jquery --save-dev
